@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,53 +51,65 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-    var text by remember { mutableStateOf(TextFieldValue("")) }
-
-    Box(
+    var currentText by remember { mutableStateOf("") }
+    
+    val notes = remember { mutableStateListOf<String>() }
+    
+    Column(
         modifier = modifier.fillMaxSize(),
-
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
-        Column {
-
-            // Bottom section with TextField and Button
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    label = { Text("Enter text") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-
-                Button(
-                    onClick = { /* TODO: Add your button action here */ },
-                    modifier = Modifier.padding(bottom = 24.dp)
+            items(notes) { note ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.LightGray
+                    )
                 ) {
-                    Text("Submit")
+                    Text(
+                        text = note,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
             }
-            // Grey card at the top to display entered text
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.LightGray
-                )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            OutlinedTextField(
+                value = currentText,
+                onValueChange = { currentText = it },
+                label = { Text("Enter note") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Button(
+                onClick = {
+                    if (currentText.isNotBlank()) {
+                        notes.add(currentText)
+                        currentText = "" 
+                    }
+                },
+                modifier = Modifier.align(Alignment.End)
             ) {
-                Text(
-                    text = text.text,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Text("Add Note")
             }
         }
-
-
     }
 }
 
